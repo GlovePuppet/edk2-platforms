@@ -80,6 +80,8 @@
   UefiRuntimeLib|MdePkg/Library/UefiRuntimeLib/UefiRuntimeLib.inf
   OrderedCollectionLib|MdePkg/Library/BaseOrderedCollectionRedBlackTreeLib/BaseOrderedCollectionRedBlackTreeLib.inf
 
+  NorFlashInfoLib|EmbeddedPkg/Library/NorFlashInfoLib/NorFlashInfoLib.inf
+
   #
   # Ramdisk Requirements
   #
@@ -161,6 +163,7 @@
 !endif
   VarCheckLib|MdeModulePkg/Library/VarCheckLib/VarCheckLib.inf
   GpioLib|Silicon/Broadcom/Bcm283x/Library/GpioLib/GpioLib.inf
+
 
 [LibraryClasses.common.SEC]
   PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
@@ -256,6 +259,14 @@
   gEfiMdePkgTokenSpaceGuid.PcdPerformanceLibraryPropertyMask|1
   gEfiMdePkgTokenSpaceGuid.PcdPostCodePropertyMask|0
   gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|320
+
+  #SPI
+  gBcm283xTokenSpaceGuid.PcdSpiRegBase|0xF4700680
+  gBcm283xTokenSpaceGuid.PcdSpiMaxFrequency|10000000
+  gBcm283xTokenSpaceGuid.PcdSpiClockFrequency|200000000
+  
+  gBcm283xTokenSpaceGuid.PcdSpiFlashMode|3
+  gBcm283xTokenSpaceGuid.PcdSpiFlashCs|0
 
   # DEBUG_ASSERT_ENABLED       0x01
   # DEBUG_PRINT_ENABLED        0x02
@@ -608,6 +619,13 @@
   # RNG
   #
   Silicon/Broadcom/Bcm283x/Drivers/RngDxe/RngDxe.inf
+
+  #
+  # SPI
+  #
+  Silicon/Broadcom/Bcm283x/Drivers/Spi/SpiDxe/SpiDxe.inf
+  Silicon/Broadcom/Bcm283x/Drivers/Spi/MvSpiFlashDxe/MvSpiFlashDxe.inf
+
 
   #
   # UEFI application (Shell Embedded Boot Loader)
