@@ -38,11 +38,11 @@ STATIC FVB_DEVICE    *mFvbDevice;
 STATIC CONST FVB_DEVICE mMvFvbFlashInstanceTemplate = {
   {
     0,    // SpiFlash Chip Select ... NEED TO BE FILLED
-    0,    // SpiFlash Maximum Frequency ... NEED TO BE FILLED
-    0,    // SpiFlash Transfer Mode ... NEED TO BE FILLED
-    0,    // SpiFlash Address Size ... NEED TO BE FILLED
+    0,    // SpiFlash Controller
+    0,    // SpiFlash Max Freq
+    0,    // SpiFlash Mode
+    0,    // SpiFlash AddrSize
     NULL, // SpiFlash detailed information ... NEED TO BE FILLED
-    0,    // HostRegisterBaseAddress ... NEED TO BE FILLED
     0,    // CoreClock ... NEED TO BE FILLED
   }, // SpiDevice
 
@@ -881,7 +881,6 @@ MvFvbVirtualNotifyEvent (
 
   // Convert SPI device description
   EfiConvertPointer (0x0, (VOID**)&mFvbDevice->SpiDevice.Info);
-  EfiConvertPointer (0x0, (VOID**)&mFvbDevice->SpiDevice.HostRegisterBaseAddress);
   EfiConvertPointer (0x0, (VOID**)&mFvbDevice->SpiDevice);
 
   // Convert SpiFlashProtocol
@@ -898,7 +897,7 @@ MvFvbFlashProbe (
   IN FVB_DEVICE *FlashInstance
   )
 {
-  MARVELL_SPI_FLASH_PROTOCOL *SpiFlashProtocol;
+  BCM283X_SPI_FLASH_PROTOCOL *SpiFlashProtocol;
   EFI_STATUS Status;
 
   SpiFlashProtocol = FlashInstance->SpiFlashProtocol;
@@ -978,7 +977,7 @@ MvFvbConfigureFlashInstance (
 
 
   // Locate SPI protocols
-  Status = gBS->LocateProtocol (&gMarvellSpiFlashProtocolGuid,
+  Status = gBS->LocateProtocol (&gBcm283xSpiFlashProtocolGuid,
                   NULL,
                   (VOID **)&FlashInstance->SpiFlashProtocol);
   if (EFI_ERROR (Status)) {
@@ -986,7 +985,7 @@ MvFvbConfigureFlashInstance (
     return Status;
   }
 
-  Status = gBS->LocateProtocol (&gMarvellSpiMasterProtocolGuid,
+  Status = gBS->LocateProtocol (&gBcm283xSpiMasterProtocolGuid,
                   NULL,
                   (VOID **)&FlashInstance->SpiMasterProtocol);
   if (EFI_ERROR (Status)) {

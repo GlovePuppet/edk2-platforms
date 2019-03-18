@@ -84,7 +84,7 @@ typedef enum {
 } SPI_COMMAND;
 
 typedef struct {
-  MARVELL_SPI_FLASH_PROTOCOL  SpiFlashProtocol;
+  BCM283X_SPI_FLASH_PROTOCOL  SpiFlashProtocol;
   UINTN                   Signature;
   EFI_HANDLE              Handle;
 } SPI_FLASH_INSTANCE;
@@ -131,7 +131,7 @@ SpiFlashErase (
 EFI_STATUS
 EFIAPI
 EfiSpiFlashInit (
-  IN MARVELL_SPI_FLASH_PROTOCOL *This,
+  IN BCM283X_SPI_FLASH_PROTOCOL *This,
   IN SPI_DEVICE *Slave
   );
 

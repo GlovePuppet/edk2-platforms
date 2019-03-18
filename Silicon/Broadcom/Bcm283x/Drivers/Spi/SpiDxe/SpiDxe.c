@@ -31,9 +31,32 @@ ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 *******************************************************************************/
+#include <IndustryStandard/Bcm2836.h>
 #include "SpiDxe.h"
 
 SPI_MASTER *mSpiMasterInstance;
+
+STATIC 
+UINTN
+GetSpiRegBase(
+  INTN Controller
+  )
+{
+  UINTN Result = 0;
+  switch(Controller)
+  {
+    case 0:
+      Result = SPI0_BASE_ADDRESS;
+      break;
+    case 1:
+      Result = SPI1_BASE_ADDRESS;
+      break;
+    case 2:
+      Result = SPI2_BASE_ADDRESS;
+      break;
+  }  
+  return Result;
+}
 
 STATIC
 EFI_STATUS
@@ -43,7 +66,7 @@ SpiSetBaudRate (
   IN UINT32 MaxFreq
   )
 {
-  UINTN  SpiRegBase = Slave->HostRegisterBaseAddress;
+  UINTN SpiRegBase  = GetSpiRegBase(Slave->Controller);
   MmioWrite32 (SpiRegBase + SPI_CLK_REG, 0);    /* Slowest possible speed - for now */
   return EFI_SUCCESS;
 }
@@ -55,7 +78,7 @@ SpiActivateCs (
   )
 {
   UINT32 Reg;
-  UINTN  SpiRegBase = Slave->HostRegisterBaseAddress;
+  UINTN SpiRegBase  = GetSpiRegBase(Slave->Controller);
 
   Reg = MmioRead32 (SpiRegBase + SPI_CS_REG);
   /* Cs must be in the range 0-2 */
@@ -70,7 +93,7 @@ SpiDeactivateCs (
   )
 {
   UINT32 Reg;
-  UINTN  SpiRegBase = Slave->HostRegisterBaseAddress;
+  UINTN SpiRegBase  = GetSpiRegBase(Slave->Controller);
   /* Use the undefined value to de-assert all CS */
   Reg = MmioRead32 (SpiRegBase + SPI_CS_REG);
   Reg |= SPI_CS_UNDEFINED;
@@ -91,7 +114,7 @@ SpiSetupTransfer (
   SpiMaster = SPI_MASTER_FROM_SPI_MASTER_PROTOCOL (This);
 
   // Initialize values from PCDs
-  SpiRegBase  = Slave->HostRegisterBaseAddress;
+  SpiRegBase  = GetSpiRegBase(Slave->Controller);
 
   CoreClock   = Slave->CoreClock;
   SpiMaxFreq  = Slave->MaxFreq;
@@ -149,7 +172,7 @@ Bcm283xSpiTransfer (
 
   SpiMaster = SPI_MASTER_FROM_SPI_MASTER_PROTOCOL (This);
 
-  SpiRegBase = Slave->HostRegisterBaseAddress;
+  SpiRegBase  = GetSpiRegBase(Slave->Controller);
 
   Length = DataByteCount;
 
@@ -250,6 +273,7 @@ Bcm283xSpiSetupSlave (
   IN SPI_MODE Mode
   )
 {
+  UINT32 Reg;
   if (!Slave) {
     Slave = AllocateZeroPool (sizeof(SPI_DEVICE));
     if (Slave == NULL) {
@@ -261,9 +285,24 @@ Bcm283xSpiSetupSlave (
     Slave->Mode = Mode;
   }
 
-  Slave->HostRegisterBaseAddress = PcdGet32 (PcdSpiRegBase);
   Slave->CoreClock = PcdGet32 (PcdSpiClockFrequency);
   Slave->MaxFreq = PcdGet32 (PcdSpiMaxFrequency);
+
+  /* Enable the SPI controller. Could this do this earlier but don't know which
+  SPI controller is going to be used */
+  Reg = MmioRead32(AUX_ENB);
+  switch(Slave->Controller)
+  {
+    case 0:
+      break;
+    case 1:
+      Reg |= 1;
+      break;
+    case 2:
+      Reg |= 2;
+      break;
+  }
+  MmioWrite32(AUX_ENB, Reg);
 
   SpiSetupTransfer (This, Slave);
 

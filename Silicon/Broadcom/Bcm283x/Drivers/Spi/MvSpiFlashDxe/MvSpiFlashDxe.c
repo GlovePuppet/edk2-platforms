@@ -498,7 +498,7 @@ MvSpiFlashReadId (
 EFI_STATUS
 EFIAPI
 MvSpiFlashInit (
-  IN MARVELL_SPI_FLASH_PROTOCOL *This,
+  IN BCM283X_SPI_FLASH_PROTOCOL *This,
   IN SPI_DEVICE *Slave
   )
 {
@@ -549,7 +549,7 @@ MvSpiFlashInit (
 
 EFI_STATUS
 MvSpiFlashInitProtocol (
-  IN MARVELL_SPI_FLASH_PROTOCOL *SpiFlashProtocol
+  IN BCM283X_SPI_FLASH_PROTOCOL *SpiFlashProtocol
   )
 {
 

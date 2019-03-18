@@ -261,12 +261,13 @@
   gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|320
 
   #SPI
-  gBcm283xTokenSpaceGuid.PcdSpiRegBase|0xF4700680
+#  gBcm283xTokenSpaceGuid.PcdSpiRegBase|0xF4700680
   gBcm283xTokenSpaceGuid.PcdSpiMaxFrequency|10000000
   gBcm283xTokenSpaceGuid.PcdSpiClockFrequency|200000000
   
   gBcm283xTokenSpaceGuid.PcdSpiFlashMode|3
   gBcm283xTokenSpaceGuid.PcdSpiFlashCs|0
+  gBcm283xTokenSpaceGuid.PcdSpiMemoryBase|0xF9000000
 
   # DEBUG_ASSERT_ENABLED       0x01
   # DEBUG_PRINT_ENABLED        0x02
@@ -468,6 +469,15 @@
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase64|0
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase|0
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase|0
+  
+
+[PcdsFixedAtBuild.common]
+  gBcm283xTokenSpaceGuid.PcdSpiMemoryBase|0xF9000000
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase|0xF93C0000
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableSize|0x00010000
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingSize|0x00010000
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareSize|0x00010000
+
 
 ################################################################################
 #
@@ -625,6 +635,7 @@
   #
   Silicon/Broadcom/Bcm283x/Drivers/Spi/SpiDxe/SpiDxe.inf
   Silicon/Broadcom/Bcm283x/Drivers/Spi/MvSpiFlashDxe/MvSpiFlashDxe.inf
+  Silicon/Broadcom/Bcm283x/Drivers/Spi/MvFvbDxe/MvFvbDxe.inf
 
 
   #
@@ -640,6 +651,7 @@
       NULL|ShellPkg/Library/UefiShellDebug1CommandsLib/UefiShellDebug1CommandsLib.inf
       NULL|ShellPkg/Library/UefiShellInstall1CommandsLib/UefiShellInstall1CommandsLib.inf
       NULL|ShellPkg/Library/UefiShellNetwork1CommandsLib/UefiShellNetwork1CommandsLib.inf
+      NULL|Silicon/Broadcom/Bcm283x/Applications/SpiTool/SpiFlashCmd.inf
       HandleParsingLib|ShellPkg/Library/UefiHandleParsingLib/UefiHandleParsingLib.inf
       PrintLib|MdePkg/Library/BasePrintLib/BasePrintLib.inf
       BcfgCommandLib|ShellPkg/Library/UefiShellBcfgCommandLib/UefiShellBcfgCommandLib.inf

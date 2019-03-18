@@ -88,39 +88,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SPI_CS_CS1                      (1)
 #define SPI_CS_CS0                      (0)
 
-#if 0
-// Marvell Flash Device Controller Registers
-#define SPI_CTRL_REG                    (0x00)
-#define SPI_CONF_REG                    (0x04)
-#define SPI_DATA_OUT_REG                (0x08)
-#define SPI_DATA_IN_REG                 (0x0c)
-#define SPI_INT_CAUSE_REG               (0x10)
-
-// Serial Memory Interface Control Register Masks
-#define SPI_CS_NUM_OFFSET               2
-#define SPI_CS_NUM_MASK                 (0x7 << SPI_CS_NUM_OFFSET)
-#define SPI_MEM_READY_MASK              (0x1 << 1)
-#define SPI_CS_EN_MASK                  (0x1 << 0)
-
-// Serial Memory Interface Configuration Register Masks
-#define SPI_BYTE_LENGTH_OFFSET          5
-#define SPI_BYTE_LENGTH                 (0x1  << SPI_BYTE_LENGTH_OFFSET)
-#define SPI_CPOL_OFFSET                 11
-#define SPI_CPOL_MASK                   (0x1 << SPI_CPOL_OFFSET)
-#define SPI_CPHA_OFFSET                 12
-#define SPI_CPHA_MASK                  (0x1 << SPI_CPHA_OFFSET)
-#define SPI_TXLSBF_OFFSET               13
-#define SPI_TXLSBF_MASK                 (0x1 << SPI_TXLSBF_OFFSET)
-#define SPI_RXLSBF_OFFSET               14
-#define SPI_RXLSBF_MASK                 (0x1 << SPI_RXLSBF_OFFSET)
-
-#define SPI_SPR_OFFSET                  0
-#define SPI_SPR_MASK                    (0xf << SPI_SPR_OFFSET)
-#define SPI_SPPR_0_OFFSET               4
-#define SPI_SPPR_0_MASK                 (0x1 << SPI_SPPR_0_OFFSET)
-#define SPI_SPPR_HI_OFFSET              6
-#define SPI_SPPR_HI_MASK                (0x3 << SPI_SPPR_HI_OFFSET)
-#endif
 #define SPI_TRANSFER_BEGIN              0x01  // Assert CS before transfer
 #define SPI_TRANSFER_END                0x02  // Deassert CS after transfers
 
@@ -135,7 +102,7 @@ typedef struct {
 
 EFI_STATUS
 EFIAPI
-MvSpiTransfer (
+Bcm283xSpiTransfer (
   IN BCM283X_SPI_MASTER_PROTOCOL *This,
   IN SPI_DEVICE *Slave,
   IN UINTN DataByteCount,
@@ -146,7 +113,7 @@ MvSpiTransfer (
 
 EFI_STATUS
 EFIAPI
-MvSpiReadWrite (
+Bcm283xSpiReadWrite (
   IN  BCM283X_SPI_MASTER_PROTOCOL *This,
   IN  SPI_DEVICE *Slave,
   IN  UINT8 *Cmd,
@@ -158,13 +125,13 @@ MvSpiReadWrite (
 
 EFI_STATUS
 EFIAPI
-MvSpiInit (
+Bcm283xSpiInit (
   IN BCM283X_SPI_MASTER_PROTOCOL     * This
   );
 
 SPI_DEVICE *
 EFIAPI
-MvSpiSetupSlave (
+Bcm283xSpiSetupSlave (
   IN BCM283X_SPI_MASTER_PROTOCOL     * This,
   IN SPI_DEVICE *Slave,
   IN UINTN Cs,
@@ -173,7 +140,7 @@ MvSpiSetupSlave (
 
 EFI_STATUS
 EFIAPI
-MvSpiFreeSlave (
+Bcm283xSpiFreeSlave (
   IN SPI_DEVICE *Slave
   );
 

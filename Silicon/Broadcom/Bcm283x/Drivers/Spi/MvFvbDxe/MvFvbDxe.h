@@ -48,8 +48,8 @@ typedef struct {
 typedef struct {
   SPI_DEVICE                          SpiDevice;
 
-  MARVELL_SPI_FLASH_PROTOCOL          *SpiFlashProtocol;
-  MARVELL_SPI_MASTER_PROTOCOL         *SpiMasterProtocol;
+  BCM283X_SPI_FLASH_PROTOCOL          *SpiFlashProtocol;
+  BCM283X_SPI_MASTER_PROTOCOL         *SpiMasterProtocol;
 
   EFI_HANDLE                          Handle;
 

@@ -37,14 +37,14 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <Protocol/FirmwareManagement.h>
 #include <Protocol/Spi.h>
 
-extern EFI_GUID gMarvellSpiFlashProtocolGuid;
+extern EFI_GUID gBcm283xSpiFlashProtocolGuid;
 
-typedef struct _MARVELL_SPI_FLASH_PROTOCOL MARVELL_SPI_FLASH_PROTOCOL;
+typedef struct _BCM283X_SPI_FLASH_PROTOCOL BCM283X_SPI_FLASH_PROTOCOL;
 
 typedef
 EFI_STATUS
 (EFIAPI *MV_SPI_FLASH_INIT) (
-  IN MARVELL_SPI_FLASH_PROTOCOL *This,
+  IN BCM283X_SPI_FLASH_PROTOCOL *This,
   IN SPI_DEVICE             *SpiDev
   );
 
@@ -102,7 +102,7 @@ EFI_STATUS
   IN UINTN                                          EndPercentage
   );
 
-struct _MARVELL_SPI_FLASH_PROTOCOL {
+struct _BCM283X_SPI_FLASH_PROTOCOL {
   MV_SPI_FLASH_INIT    Init;
   MV_SPI_FLASH_READ_ID ReadId;
   MV_SPI_FLASH_READ    Read;

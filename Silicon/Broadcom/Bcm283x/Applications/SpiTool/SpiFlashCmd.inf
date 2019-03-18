@@ -30,45 +30,48 @@
 #
 
 [Defines]
-  INF_VERSION                    = 0x00010005
-  BASE_NAME                      = SpiDxe
-  FILE_GUID                      = c19dbc8a-f4f9-43b0-aee5-802e3ed03d15
-  MODULE_TYPE                    = DXE_RUNTIME_DRIVER
-  VERSION_STRING                 = 1.0
-  ENTRY_POINT                    = Bcm283xSpiEntryPoint
+ INF_VERSION = 0x00010006
+ BASE_NAME = UefiShellSpiFlashLib
+ FILE_GUID = 2f2dd8c9-221f-4acf-afe5-5897264c5774
+ MODULE_TYPE = UEFI_APPLICATION
+ VERSION_STRING = 0.1
+ LIBRARY_CLASS = NULL|UEFI_APPLICATION UEFI_DRIVER
+ CONSTRUCTOR = ShellSpiFlashLibConstructor
+ DESTRUCTOR = ShellSpiFlashLibDestructor
 
 [Sources]
-  SpiDxe.c
-  SpiDxe.h
+ SpiFlashCmd.c
+ SpiFlashCmd.uni
 
 [Packages]
-  EmbeddedPkg/EmbeddedPkg.dec
-  MdePkg/MdePkg.dec
-  Silicon/Broadcom/Bcm283x/Bcm283x.dec
+ EmbeddedPkg/EmbeddedPkg.dec
+ MdePkg/MdePkg.dec
+ ShellPkg/ShellPkg.dec
+ MdeModulePkg/MdeModulePkg.dec
+ Silicon/Broadcom/Bcm283x/Bcm283x.dec
 
 [LibraryClasses]
-  DebugLib
-  DxeServicesTableLib
-  IoLib
-  MemoryAllocationLib
-  NorFlashInfoLib
-  TimerLib
-  UefiBootServicesTableLib
-  UefiDriverEntryPoint
-  UefiLib
-  UefiRuntimeLib
+ UefiLib
+ UefiBootServicesTableLib
+ MemoryAllocationLib
+ BaseLib
+ BaseMemoryLib
+ DebugLib
+ ShellCommandLib
+ ShellLib
+ UefiLib
+ UefiRuntimeServicesTableLib
+ PcdLib
+ HiiLib
+ FileHandleLib
 
-[FixedPcd]
-  gBcm283xTokenSpaceGuid.PcdSpiClockFrequency
-  gBcm283xTokenSpaceGuid.PcdSpiMaxFrequency
-#  gBcm283xTokenSpaceGuid.PcdSpiRegBase
+[Pcd]
+ gBcm283xTokenSpaceGuid.PcdSpiFlashCs
+ gBcm283xTokenSpaceGuid.PcdSpiFlashMode
 
 [Protocols]
-  gBcm283xSpiMasterProtocolGuid
+ gBcm283xSpiFlashProtocolGuid
+ gBcm283xSpiMasterProtocolGuid
 
-[Depex]
-  #
-  # SpiDxe must be loaded prior to SpiFlash driver
-  #
-  BEFORE gBcm283xSpiFlashDxeGuid
-# TRUE
+[Guids]
+ gShellSfHiiGuid

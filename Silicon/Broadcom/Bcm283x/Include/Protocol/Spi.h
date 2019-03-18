@@ -49,11 +49,11 @@ typedef enum {
 
 typedef struct {
   INTN Cs;
+  INTN Controller;
   INTN MaxFreq;
   SPI_MODE Mode;
   UINT32 AddrSize;
   NOR_FLASH_INFO *Info;
-  UINTN HostRegisterBaseAddress;
   UINTN CoreClock;
 } SPI_DEVICE;
 

@@ -45,7 +45,7 @@
   EmbeddedPkg/EmbeddedPkg.dec
   MdeModulePkg/MdeModulePkg.dec
   MdePkg/MdePkg.dec
-  Silicon/Marvell/Marvell.dec
+  Silicon/Broadcom/Bcm283x/Bcm283x.dec
 
 [LibraryClasses]
   BaseLib
@@ -72,17 +72,20 @@
 [Protocols]
   gEfiDevicePathProtocolGuid
   gEfiFirmwareVolumeBlockProtocolGuid
-  gMarvellSpiFlashProtocolGuid
-  gMarvellSpiMasterProtocolGuid
+  gBcm283xSpiFlashProtocolGuid
+  gBcm283xSpiMasterProtocolGuid
+
+[Pcd]
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase
+  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase
 
 [FixedPcd]
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableBase
+  gBcm283xTokenSpaceGuid.PcdSpiMemoryBase
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageVariableSize
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingBase
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwWorkingSize
-  gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareBase
   gEfiMdeModulePkgTokenSpaceGuid.PcdFlashNvStorageFtwSpareSize
-  gMarvellTokenSpaceGuid.PcdSpiMemoryBase
+
 
 [Depex]
   gEfiCpuArchProtocolGuid
