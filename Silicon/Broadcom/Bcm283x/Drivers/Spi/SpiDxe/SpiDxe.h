@@ -50,12 +50,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SPI_MASTER_SIGNATURE                      SIGNATURE_32 ('M', 'S', 'P', 'I')
 #define SPI_MASTER_FROM_SPI_MASTER_PROTOCOL(a)  CR (a, SPI_MASTER, SpiMasterProtocol, SPI_MASTER_SIGNATURE)
 
-#define SPI_CS_REG                      (0x00)
-#define SPI_FIFO_REG                    (0x04)
-#define SPI_CLK_REG                     (0x08)
-#define SPI_DLEN_REG                    (0x0C)
-#define SPI_LTOH_REG                    (0x10)
-#define SPI_DC_REG                      (0x14)
 
 
 #define SPI_CS_LEN_LONG                 (1 << 25)
@@ -134,6 +128,7 @@ EFIAPI
 Bcm283xSpiSetupSlave (
   IN BCM283X_SPI_MASTER_PROTOCOL     * This,
   IN SPI_DEVICE *Slave,
+  IN INTN Controller,
   IN UINTN Cs,
   IN SPI_MODE Mode
   );

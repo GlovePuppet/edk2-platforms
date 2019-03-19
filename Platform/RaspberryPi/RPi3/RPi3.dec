@@ -47,7 +47,6 @@
   gRaspberryPiTokenSpaceGuid.PcdNvStorageFtwWorkingBase|0x0|UINT32|0x00000007
 
   #SPI
-  gRaspberryPiTokenSpaceGuid.PcdSpiRegBase|0x0|UINT32|0xF4700680
   gRaspberryPiTokenSpaceGuid.PcdSpiMaxFrequency|0x0|UINT32|10000000
   gRaspberryPiTokenSpaceGuid.PcdSpiClockFrequency|0x0|UINT32|200000000
 

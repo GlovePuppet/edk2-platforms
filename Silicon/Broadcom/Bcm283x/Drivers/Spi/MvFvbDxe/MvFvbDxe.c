@@ -35,15 +35,24 @@
 STATIC EFI_EVENT     mFvbVirtualAddrChangeEvent;
 STATIC FVB_DEVICE    *mFvbDevice;
 
+#if 0
+  25P16 
+
+  INTN Cs = 1;
+  Controller = 1;
+  MaxFreq = 33MHz;
+  Mode = 0;
+  NOR_FLASH_INFO *Info;
+#endif
+
 STATIC CONST FVB_DEVICE mMvFvbFlashInstanceTemplate = {
   {
     0,    // SpiFlash Chip Select ... NEED TO BE FILLED
     0,    // SpiFlash Controller
-    0,    // SpiFlash Max Freq
+    33000000,    // SpiFlash Max Freq
     0,    // SpiFlash Mode
-    0,    // SpiFlash AddrSize
+    3,    // Address Size
     NULL, // SpiFlash detailed information ... NEED TO BE FILLED
-    0,    // CoreClock ... NEED TO BE FILLED
   }, // SpiDevice
 
   NULL, // SpiFlashProtocol ... NEED TO BE FILLED
@@ -997,6 +1006,7 @@ MvFvbConfigureFlashInstance (
   FlashInstance->SpiMasterProtocol->SetupDevice (FlashInstance->SpiMasterProtocol,
                                       &FlashInstance->SpiDevice,
                                       0,
+                                      1,
                                       0);
 
   Status = MvFvbFlashProbe (FlashInstance);

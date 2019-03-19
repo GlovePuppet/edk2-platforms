@@ -68,6 +68,7 @@
 [Pcd]
  gBcm283xTokenSpaceGuid.PcdSpiFlashCs
  gBcm283xTokenSpaceGuid.PcdSpiFlashMode
+ gBcm283xTokenSpaceGuid.PcdSpiFlashController
 
 [Protocols]
  gBcm283xSpiFlashProtocolGuid

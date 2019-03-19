@@ -54,7 +54,6 @@ typedef struct {
   SPI_MODE Mode;
   UINT32 AddrSize;
   NOR_FLASH_INFO *Info;
-  UINTN CoreClock;
 } SPI_DEVICE;
 
 typedef
@@ -91,6 +90,7 @@ SPI_DEVICE *
 (EFIAPI *BCM283X_SPI_SETUP_DEVICE) (
   IN BCM283X_SPI_MASTER_PROTOCOL *This,
   IN SPI_DEVICE *Slave,
+  IN INTN Controller,
   IN UINTN    Cs,
   IN SPI_MODE Mode
   );

@@ -261,13 +261,14 @@
   gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|320
 
   #SPI
-#  gBcm283xTokenSpaceGuid.PcdSpiRegBase|0xF4700680
   gBcm283xTokenSpaceGuid.PcdSpiMaxFrequency|10000000
   gBcm283xTokenSpaceGuid.PcdSpiClockFrequency|200000000
   
   gBcm283xTokenSpaceGuid.PcdSpiFlashMode|3
   gBcm283xTokenSpaceGuid.PcdSpiFlashCs|0
   gBcm283xTokenSpaceGuid.PcdSpiMemoryBase|0xF9000000
+  gBcm283xTokenSpaceGuid.PcdSpiFlashController|0
+
 
   # DEBUG_ASSERT_ENABLED       0x01
   # DEBUG_PRINT_ENABLED        0x02

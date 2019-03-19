@@ -78,13 +78,37 @@
 
 #define RNG_CTRL_ENABLE    0x1
 
-#define AUX_BASE_ADDRESS    (BCM2836_SOC_REGISTERS + 0x215000)
+#define AUX_BASE_ADDRESS        (BCM2836_SOC_REGISTERS + 0x215000)
 
-#define AUX_IRQ             (AUX_BASE_ADDRESS + 0x00)
-#define AUX_ENB             (AUX_BASE_ADDRESS + 0x04)
+#define AUX_IRQ                 (AUX_BASE_ADDRESS + 0x00)
+#define AUX_ENB                 (AUX_BASE_ADDRESS + 0x04)
 
-#define SPI0_BASE_ADDRESS   (BCM2836_SOC_REGISTERS + 0x204000)
-#define SPI1_BASE_ADDRESS   (BCM2836_SOC_REGISTERS + 0x215080)
-#define SPI2_BASE_ADDRESS   (BCM2836_SOC_REGISTERS + 0x2150C0)
+#define AUX_ENB_MINI_UART       1
+#define AUX_ENB_SPI1            2
+#define AUX_ENB_SPI2            4
+
+#define SPI0_BASE_ADDRESS       (BCM2836_SOC_REGISTERS + 0x204000)
+
+#define SPI0_CS_REG             (SPI0_BASE_ADDRESS + 0x00)
+#define SPI0_FIFO_REG           (SPI0_BASE_ADDRESS + 0x04)
+#define SPI0_CLK_REG            (SPI0_BASE_ADDRESS + 0x08)
+#define SPI0_DLEN_REG           (SPI0_BASE_ADDRESS + 0x0C)
+#define SPI0_LTOH_REG           (SPI0_BASE_ADDRESS + 0x10)
+#define SPI0_DC_REG             (SPI0_BASE_ADDRESS + 0x14)
+
+#if 0
+/* SPI register offsets */
+#define AUX_SPI_CNTL0_OFFSET   0x00
+#define AUX_SPI_CNTL1_OFFSET   0x04
+#define AUX_SPI_STAT_OFFSET    0x08
+#define AUX_SPI_PEEK_OFFSET    0x0C
+#define AUX_SPI_IO_OFFSET      0x2C
+#define AUX_SPI_TXHOLD_OFFSET  0x3C
+#endif
+
+#define GPFSEL_BASE_ADDRESS     (BCM2836_SOC_REGISTERS + 0x200000)
+
+#define GPFSEL_GPFSEL0          (GPFSEL_BASE_ADDRESS + 0x00)
+#define GPFSEL_GPFSEL1          (GPFSEL_BASE_ADDRESS + 0x04)
 
 #endif /*__BCM2836_H__ */

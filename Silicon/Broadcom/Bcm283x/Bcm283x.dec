@@ -32,14 +32,13 @@
 [PcdsFixedAtBuild.common]
 
 #SPI
-#  gBcm283xTokenSpaceGuid.PcdSpiRegBase|0|UINT32|0x3000051
+  gBcm283xTokenSpaceGuid.PcdSpiFlashController|0|UINT32|0x3000051
   gBcm283xTokenSpaceGuid.PcdSpiMemoryBase|0|UINT32|0x3000059
   gBcm283xTokenSpaceGuid.PcdSpiMaxFrequency|0|UINT32|0x30000052
   gBcm283xTokenSpaceGuid.PcdSpiClockFrequency|0|UINT32|0x30000053
 
   gBcm283xTokenSpaceGuid.PcdSpiFlashCs|0|UINT32|0x3000057
   gBcm283xTokenSpaceGuid.PcdSpiFlashMode|0|UINT32|0x3000058
-
 [Protocols]
   gBcm283xSpiMasterProtocolGuid            = { 0x23de66a3, 0xf666, 0x4b3e, { 0xaa, 0xa2, 0x68, 0x9b, 0x18, 0xae, 0x2e, 0x19 }}
   gBcm283xSpiFlashProtocolGuid             = { 0x9accb423, 0x5bd2, 0x4fca, { 0x9b, 0x4c, 0x2e, 0x65, 0xfc, 0x25, 0xdf, 0x21 }}

@@ -204,6 +204,7 @@ EFI_STATUS              Status;
   BOOLEAN               AddrFlag = FALSE, LengthFlag = TRUE, FileFlag = FALSE;
   UINT8                 Flag = 0, CheckFlag = 0;
   UINT8                 Mode, Cs;
+  UINT8                 Controller; 
 
   Status = gBS->LocateProtocol (
     &gBcm283xSpiFlashProtocolGuid,
@@ -269,11 +270,12 @@ EFI_STATUS              Status;
     }
   }
 
+  Controller = PcdGet32 (PcdSpiFlashController);
   Mode = PcdGet32 (PcdSpiFlashMode);
   Cs = PcdGet32 (PcdSpiFlashCs);
 
   // Setup new spi device
-  mSlave = SpiMasterProtocol->SetupDevice (SpiMasterProtocol, mSlave, Cs, Mode);
+  mSlave = SpiMasterProtocol->SetupDevice (SpiMasterProtocol, mSlave, Controller, Cs, Mode);
     if (mSlave == NULL) {
       Print(L"sf: Cannot allocate SPI device!\n");
       return SHELL_ABORTED;

@@ -36,27 +36,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 SPI_MASTER *mSpiMasterInstance;
 
-STATIC 
-UINTN
-GetSpiRegBase(
-  INTN Controller
-  )
-{
-  UINTN Result = 0;
-  switch(Controller)
-  {
-    case 0:
-      Result = SPI0_BASE_ADDRESS;
-      break;
-    case 1:
-      Result = SPI1_BASE_ADDRESS;
-      break;
-    case 2:
-      Result = SPI2_BASE_ADDRESS;
-      break;
-  }  
-  return Result;
-}
 
 STATIC
 EFI_STATUS
@@ -66,8 +45,7 @@ SpiSetBaudRate (
   IN UINT32 MaxFreq
   )
 {
-  UINTN SpiRegBase  = GetSpiRegBase(Slave->Controller);
-  MmioWrite32 (SpiRegBase + SPI_CLK_REG, 0);    /* Slowest possible speed - for now */
+  MmioWrite32 (SPI0_CLK_REG, 0);    /* Slowest possible speed - for now */
   return EFI_SUCCESS;
 }
 
@@ -78,12 +56,12 @@ SpiActivateCs (
   )
 {
   UINT32 Reg;
-  UINTN SpiRegBase  = GetSpiRegBase(Slave->Controller);
-
-  Reg = MmioRead32 (SpiRegBase + SPI_CS_REG);
+  Reg = MmioRead32 (SPI0_CS_REG);
   /* Cs must be in the range 0-2 */
   Reg |= Slave->Cs;
-  MmioWrite32 (SpiRegBase + SPI_CS_REG, Reg);
+  MmioWrite32 (SPI0_CS_REG, Reg);
+
+  DEBUG ((DEBUG_ERROR, "%a: SPI_CS_REG %08X\n", __FUNCTION__, MmioRead32 (SPI0_CS_REG)));
 }
 
 STATIC
@@ -93,11 +71,12 @@ SpiDeactivateCs (
   )
 {
   UINT32 Reg;
-  UINTN SpiRegBase  = GetSpiRegBase(Slave->Controller);
   /* Use the undefined value to de-assert all CS */
-  Reg = MmioRead32 (SpiRegBase + SPI_CS_REG);
+  Reg = MmioRead32 (SPI0_CS_REG);
   Reg |= SPI_CS_UNDEFINED;
-  MmioWrite32 (SpiRegBase + SPI_CS_REG, Reg);
+  MmioWrite32 (SPI0_CS_REG, Reg);
+
+  DEBUG ((DEBUG_ERROR, "%a: SPI_CS_REG %08X\n", __FUNCTION__, MmioRead32 (SPI0_CS_REG)));
 }
 
 STATIC
@@ -109,20 +88,20 @@ SpiSetupTransfer (
 {
   SPI_MASTER *SpiMaster;
   UINT32 Reg, CoreClock, SpiMaxFreq;
-  UINTN SpiRegBase;
-
   SpiMaster = SPI_MASTER_FROM_SPI_MASTER_PROTOCOL (This);
 
-  // Initialize values from PCDs
-  SpiRegBase  = GetSpiRegBase(Slave->Controller);
-
-  CoreClock   = Slave->CoreClock;
+  CoreClock   = 0; //Slave->CoreClock;
   SpiMaxFreq  = Slave->MaxFreq;
   EfiAcquireLock (&SpiMaster->Lock);
 
+
   SpiSetBaudRate (Slave, CoreClock, SpiMaxFreq);
 
-  Reg = MmioRead32 (SpiRegBase + SPI_CS_REG);
+
+  DEBUG ((DEBUG_ERROR, "%a: SPI_CS_REG %08X\n", __FUNCTION__, MmioRead32 (SPI0_CS_REG)));
+
+
+  Reg = MmioRead32 (SPI0_CS_REG);
 
   /* Cs must be in the range 0-2 */
   /* Here we assume CS is active low */
@@ -146,7 +125,12 @@ SpiSetupTransfer (
     break;
   }
 
-  MmioWrite32 (SpiRegBase + SPI_CS_REG, Reg);
+  Reg |= SPI_CS_TA;
+
+  MmioWrite32 (SPI0_CS_REG, Reg);
+
+  DEBUG ((DEBUG_ERROR, "%a: SPI_CS_REG %08X\n", __FUNCTION__, MmioRead32 (SPI0_CS_REG)));
+
 
   EfiReleaseLock (&SpiMaster->Lock);
 }
@@ -167,12 +151,9 @@ Bcm283xSpiTransfer (
   UINT32  Iterator;
   UINT8   *DataOutPtr = (UINT8 *)DataOut;
   UINT8   *DataInPtr  = (UINT8 *)DataIn;
-  UINT8   DataToSend  = 0;
-  UINTN   SpiRegBase;
+  UINT8   DataRead, DataToSend  = 0;
 
   SpiMaster = SPI_MASTER_FROM_SPI_MASTER_PROTOCOL (This);
-
-  SpiRegBase  = GetSpiRegBase(Slave->Controller);
 
   Length = DataByteCount;
 
@@ -191,12 +172,12 @@ Bcm283xSpiTransfer (
 
     Iterator = 0;
     /* Transmit Data - space available in FIFO? */
-    if (MmioRead32 (SpiRegBase + SPI_CS_REG) & SPI_CS_TXD) {
+    if (MmioRead32 (SPI0_CS_REG) & SPI_CS_TXD) {
 
-      MmioWrite32 (SpiRegBase + SPI_FIFO_REG, DataToSend);
+      MmioWrite32 (SPI0_FIFO_REG, DataToSend);
 
       /* Wait for RX FIFO not empty */
-      while(((MmioRead32 (SpiRegBase + SPI_CS_REG) & SPI_CS_RXD) == 0) && (Iterator < SPI_TIMEOUT)) {
+      while(((MmioRead32 (SPI0_CS_REG) & SPI_CS_RXD) == 0) && (Iterator < SPI_TIMEOUT)) {
         Iterator++;
       }
       if (Iterator >= SPI_TIMEOUT) {
@@ -204,8 +185,10 @@ Bcm283xSpiTransfer (
         return EFI_TIMEOUT;
       }
 
+      /* We have to read from the FIFO even if we discard the data else we go out of sync */
+      DataRead = MmioRead32 (SPI0_FIFO_REG);
       if (DataInPtr != NULL) {
-        *DataInPtr = MmioRead32 (SpiRegBase + SPI_FIFO_REG);
+        *DataInPtr = DataRead;
         DataInPtr++;
       }
 
@@ -269,11 +252,13 @@ EFIAPI
 Bcm283xSpiSetupSlave (
   IN BCM283X_SPI_MASTER_PROTOCOL *This,
   IN SPI_DEVICE *Slave,
+  IN INTN Controller,
   IN UINTN Cs,
   IN SPI_MODE Mode
   )
 {
   UINT32 Reg;
+
   if (!Slave) {
     Slave = AllocateZeroPool (sizeof(SPI_DEVICE));
     if (Slave == NULL) {
@@ -281,28 +266,43 @@ Bcm283xSpiSetupSlave (
       return NULL;
     }
 
-    Slave->Cs   = Cs;
-    Slave->Mode = Mode;
+    Slave->Controller = Controller;
+    Slave->Cs         = Cs;
+    Slave->Mode       = Mode;
   }
 
-  Slave->CoreClock = PcdGet32 (PcdSpiClockFrequency);
+  DEBUG ((DEBUG_ERROR, "%a: Controller %d Cs %d Mode %d\n", __FUNCTION__, Slave->Controller,Slave->Cs,Slave->Mode));
+  
+
+  //Slave->CoreClock = PcdGet32 (PcdSpiClockFrequency);
   Slave->MaxFreq = PcdGet32 (PcdSpiMaxFrequency);
 
   /* Enable the SPI controller. Could this do this earlier but don't know which
   SPI controller is going to be used */
-  Reg = MmioRead32(AUX_ENB);
-  switch(Slave->Controller)
+  if(Slave->Controller == 0)
   {
-    case 0:
-      break;
-    case 1:
-      Reg |= 1;
-      break;
-    case 2:
-      Reg |= 2;
-      break;
+    Reg = MmioRead32(AUX_ENB);
+    Reg |= 2;
+    MmioWrite32(AUX_ENB, Reg);
+
+    Reg = MmioRead32(GPFSEL_GPFSEL0);
+    Reg &= ~(7<<27); //gpio9
+    Reg |= 4<<27;    //alt0
+    Reg &= ~(7<<24); //gpio8
+    Reg |= 4<<24;    //alt0
+    Reg &= ~(7<<21); //gpio7
+    Reg |= 4<<21;    //alt0
+    MmioWrite32(GPFSEL_GPFSEL0, Reg);
+  
+    Reg = MmioRead32(GPFSEL_GPFSEL1);
+    Reg &=~(7<<0); //gpio10/
+    Reg |=4<<0;    //alt0
+    Reg &=~(7<<3); //gpio11/
+    Reg |=4<<3;    //alt0    
+    MmioWrite32(GPFSEL_GPFSEL1, Reg);
+
+    MmioWrite32(SPI0_CS_REG, SPI_CS_CLEAR_TX | SPI_CS_CLEAR_RX);
   }
-  MmioWrite32(AUX_ENB, Reg);
 
   SpiSetupTransfer (This, Slave);
 
