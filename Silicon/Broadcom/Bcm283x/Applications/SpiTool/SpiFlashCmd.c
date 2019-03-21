@@ -275,7 +275,7 @@ EFI_STATUS              Status;
   Cs = PcdGet32 (PcdSpiFlashCs);
 
   // Setup new spi device
-  mSlave = SpiMasterProtocol->SetupDevice (SpiMasterProtocol, mSlave, Controller, Cs, Mode);
+  mSlave = SpiMasterProtocol->SetupDevice (SpiMasterProtocol, mSlave, Controller, Cs, Mode, 1000000); //Dont care, this is temporary
     if (mSlave == NULL) {
       Print(L"sf: Cannot allocate SPI device!\n");
       return SHELL_ABORTED;

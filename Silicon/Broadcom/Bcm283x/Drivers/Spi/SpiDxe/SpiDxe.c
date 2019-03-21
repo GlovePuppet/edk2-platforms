@@ -38,15 +38,26 @@ SPI_MASTER *mSpiMasterInstance;
 
 
 STATIC
-EFI_STATUS
+VOID
 SpiSetBaudRate (
-  IN SPI_DEVICE *Slave,
-  IN UINT32 CpuClock,
-  IN UINT32 MaxFreq
+  IN SPI_DEVICE *Slave
   )
 {
-  MmioWrite32 (SPI0_CLK_REG, 0);    /* Slowest possible speed - for now */
-  return EFI_SUCCESS;
+  /* Borrowed from Linux Kernel */
+  UINT32 Cdiv;
+  if (Slave->MaxFreq >= APB_CLK_SPEED / 2) {
+		Cdiv = 2; /* APB_CLK_SPEED/2 is the fastest we can go */
+	} else if (Slave->MaxFreq) {
+		/* CDIV must be a multiple of two - Cdiv = DIV_ROUND_UP(APB_CLK_SPEED, Slave->MaxFreq);*/
+    Cdiv = (((APB_CLK_SPEED) + (Slave->MaxFreq - 1)) / Slave->MaxFreq);
+		Cdiv += (Cdiv % 2);
+		if (Cdiv >= 65536) {
+			Cdiv = 0; /* 0 is the slowest we can go */
+    }
+	} else {
+		Cdiv = 0; /* 0 is the slowest we can go */
+	}
+  MmioWrite32 (SPI0_CLK_REG, Cdiv);
 }
 
 STATIC
@@ -60,8 +71,6 @@ SpiActivateCs (
   /* Cs must be in the range 0-2 */
   Reg |= Slave->Cs;
   MmioWrite32 (SPI0_CS_REG, Reg);
-
-  DEBUG ((DEBUG_ERROR, "%a: SPI_CS_REG %08X\n", __FUNCTION__, MmioRead32 (SPI0_CS_REG)));
 }
 
 STATIC
@@ -75,8 +84,6 @@ SpiDeactivateCs (
   Reg = MmioRead32 (SPI0_CS_REG);
   Reg |= SPI_CS_UNDEFINED;
   MmioWrite32 (SPI0_CS_REG, Reg);
-
-  DEBUG ((DEBUG_ERROR, "%a: SPI_CS_REG %08X\n", __FUNCTION__, MmioRead32 (SPI0_CS_REG)));
 }
 
 STATIC
@@ -87,19 +94,12 @@ SpiSetupTransfer (
   )
 {
   SPI_MASTER *SpiMaster;
-  UINT32 Reg, CoreClock, SpiMaxFreq;
+  UINT32 Reg;
   SpiMaster = SPI_MASTER_FROM_SPI_MASTER_PROTOCOL (This);
 
-  CoreClock   = 0; //Slave->CoreClock;
-  SpiMaxFreq  = Slave->MaxFreq;
   EfiAcquireLock (&SpiMaster->Lock);
 
-
-  SpiSetBaudRate (Slave, CoreClock, SpiMaxFreq);
-
-
-  DEBUG ((DEBUG_ERROR, "%a: SPI_CS_REG %08X\n", __FUNCTION__, MmioRead32 (SPI0_CS_REG)));
-
+  SpiSetBaudRate (Slave);
 
   Reg = MmioRead32 (SPI0_CS_REG);
 
@@ -128,9 +128,6 @@ SpiSetupTransfer (
   Reg |= SPI_CS_TA;
 
   MmioWrite32 (SPI0_CS_REG, Reg);
-
-  DEBUG ((DEBUG_ERROR, "%a: SPI_CS_REG %08X\n", __FUNCTION__, MmioRead32 (SPI0_CS_REG)));
-
 
   EfiReleaseLock (&SpiMaster->Lock);
 }
@@ -254,7 +251,8 @@ Bcm283xSpiSetupSlave (
   IN SPI_DEVICE *Slave,
   IN INTN Controller,
   IN UINTN Cs,
-  IN SPI_MODE Mode
+  IN SPI_MODE Mode,
+  IN INTN MaxFreq
   )
 {
   UINT32 Reg;
@@ -269,13 +267,8 @@ Bcm283xSpiSetupSlave (
     Slave->Controller = Controller;
     Slave->Cs         = Cs;
     Slave->Mode       = Mode;
+    Slave->MaxFreq    = MaxFreq;
   }
-
-  DEBUG ((DEBUG_ERROR, "%a: Controller %d Cs %d Mode %d\n", __FUNCTION__, Slave->Controller,Slave->Cs,Slave->Mode));
-  
-
-  //Slave->CoreClock = PcdGet32 (PcdSpiClockFrequency);
-  Slave->MaxFreq = PcdGet32 (PcdSpiMaxFrequency);
 
   /* Enable the SPI controller. Could this do this earlier but don't know which
   SPI controller is going to be used */
@@ -286,19 +279,19 @@ Bcm283xSpiSetupSlave (
     MmioWrite32(AUX_ENB, Reg);
 
     Reg = MmioRead32(GPFSEL_GPFSEL0);
-    Reg &= ~(7<<27); //gpio9
-    Reg |= 4<<27;    //alt0
-    Reg &= ~(7<<24); //gpio8
-    Reg |= 4<<24;    //alt0
-    Reg &= ~(7<<21); //gpio7
-    Reg |= 4<<21;    //alt0
+    Reg &= ~(GPFSEL_BITS << 27); //gpio9
+    Reg |=  (GPFSEL_ALT0 << 27); //alt0
+    Reg &= ~(GPFSEL_BITS << 24); //gpio8
+    Reg |=  (GPFSEL_ALT0 << 24); //alt0
+    Reg &= ~(GPFSEL_BITS << 21); //gpio7
+    Reg |=  (GPFSEL_ALT0 << 21); //alt0
     MmioWrite32(GPFSEL_GPFSEL0, Reg);
   
     Reg = MmioRead32(GPFSEL_GPFSEL1);
-    Reg &=~(7<<0); //gpio10/
-    Reg |=4<<0;    //alt0
-    Reg &=~(7<<3); //gpio11/
-    Reg |=4<<3;    //alt0    
+    Reg &= ~(GPFSEL_BITS << 0); //gpio10/
+    Reg |=  (GPFSEL_ALT0 << 0); //alt0
+    Reg &= ~(GPFSEL_BITS << 3); //gpio11/
+    Reg |=  (GPFSEL_ALT0 << 3); //alt0    
     MmioWrite32(GPFSEL_GPFSEL1, Reg);
 
     MmioWrite32(SPI0_CS_REG, SPI_CS_CLEAR_TX | SPI_CS_CLEAR_RX);

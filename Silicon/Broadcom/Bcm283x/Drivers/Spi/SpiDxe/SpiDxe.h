@@ -130,7 +130,8 @@ Bcm283xSpiSetupSlave (
   IN SPI_DEVICE *Slave,
   IN INTN Controller,
   IN UINTN Cs,
-  IN SPI_MODE Mode
+  IN SPI_MODE Mode,
+  IN INTN MaxFreq
   );
 
 EFI_STATUS

@@ -260,10 +260,6 @@
   gEfiMdePkgTokenSpaceGuid.PcdPostCodePropertyMask|0
   gEfiMdePkgTokenSpaceGuid.PcdUefiLibMaxPrintBufferSize|320
 
-  #SPI
-  gBcm283xTokenSpaceGuid.PcdSpiMaxFrequency|10000000
-  gBcm283xTokenSpaceGuid.PcdSpiClockFrequency|200000000
-  
   gBcm283xTokenSpaceGuid.PcdSpiFlashMode|3
   gBcm283xTokenSpaceGuid.PcdSpiFlashCs|0
   gBcm283xTokenSpaceGuid.PcdSpiMemoryBase|0xF9000000
@@ -636,7 +632,6 @@
   #
   Silicon/Broadcom/Bcm283x/Drivers/Spi/SpiDxe/SpiDxe.inf
   Silicon/Broadcom/Bcm283x/Drivers/Spi/MvSpiFlashDxe/MvSpiFlashDxe.inf
-  Silicon/Broadcom/Bcm283x/Drivers/Spi/MvFvbDxe/MvFvbDxe.inf
 
 
   #

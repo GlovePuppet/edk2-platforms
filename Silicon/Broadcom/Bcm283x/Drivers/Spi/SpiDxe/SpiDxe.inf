@@ -58,11 +58,6 @@
   UefiLib
   UefiRuntimeLib
 
-[FixedPcd]
-  gBcm283xTokenSpaceGuid.PcdSpiClockFrequency
-  gBcm283xTokenSpaceGuid.PcdSpiMaxFrequency
-#  gBcm283xTokenSpaceGuid.PcdSpiRegBase
-
 [Protocols]
   gBcm283xSpiMasterProtocolGuid
 
@@ -71,4 +66,3 @@
   # SpiDxe must be loaded prior to SpiFlash driver
   #
   BEFORE gBcm283xSpiFlashDxeGuid
-# TRUE

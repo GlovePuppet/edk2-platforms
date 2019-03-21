@@ -64,7 +64,4 @@
   gBcm283xSpiMasterProtocolGuid
 
 [Depex]
-  #
-  # MvSpiFlashDxe must be loaded prior to variables driver MvFvbDxe
-  #
-  BEFORE gBcm283xFvbDxeGuid
+  TRUE
