@@ -34,11 +34,15 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef __BCM283X_SPI_MASTER_PROTOCOL_H__
 #define __BCM283X_SPI_MASTER_PROTOCOL_H__
 
-#include <Library/NorFlashInfoLib.h>
+//#include <Library/NorFlashInfoLib.h>
 
 extern EFI_GUID gBcm283xSpiMasterProtocolGuid;
 
 typedef struct _BCM283X_SPI_MASTER_PROTOCOL BCM283X_SPI_MASTER_PROTOCOL;
+
+#define SPI_TRANSFER_CONTINUE           0x00  // Leave CS alone
+#define SPI_TRANSFER_BEGIN              0x01  // Assert CS before transfer
+#define SPI_TRANSFER_END                0x02  // Deassert CS after transfers
 
 typedef enum {
   SPI_MODE0, // CPOL = 0 & CPHA = 0
@@ -52,8 +56,6 @@ typedef struct {
   INTN Controller;
   INTN MaxFreq;
   SPI_MODE Mode;
-  UINT32 AddrSize;
-  NOR_FLASH_INFO *Info;
 } SPI_DEVICE;
 
 typedef

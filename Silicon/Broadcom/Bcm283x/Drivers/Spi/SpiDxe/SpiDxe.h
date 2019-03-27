@@ -82,9 +82,6 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #define SPI_CS_CS1                      (1)
 #define SPI_CS_CS0                      (0)
 
-#define SPI_TRANSFER_BEGIN              0x01  // Assert CS before transfer
-#define SPI_TRANSFER_END                0x02  // Deassert CS after transfers
-
 #define SPI_TIMEOUT                     100000
 
 typedef struct {

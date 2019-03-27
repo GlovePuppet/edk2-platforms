@@ -69,10 +69,11 @@ SpiActivateCs (
   UINT32 Reg;
   Reg = MmioRead32 (SPI0_CS_REG);
   /* Cs must be in the range 0-2 */
+  Reg &= ~SPI_CS_UNDEFINED;
   Reg |= Slave->Cs;
   MmioWrite32 (SPI0_CS_REG, Reg);
 }
-
+#if 0
 STATIC
 VOID
 SpiDeactivateCs (
@@ -85,52 +86,8 @@ SpiDeactivateCs (
   Reg |= SPI_CS_UNDEFINED;
   MmioWrite32 (SPI0_CS_REG, Reg);
 }
+#endif
 
-STATIC
-VOID
-SpiSetupTransfer (
-  IN BCM283X_SPI_MASTER_PROTOCOL *This,
-  IN SPI_DEVICE *Slave
-  )
-{
-  SPI_MASTER *SpiMaster;
-  UINT32 Reg;
-  SpiMaster = SPI_MASTER_FROM_SPI_MASTER_PROTOCOL (This);
-
-  EfiAcquireLock (&SpiMaster->Lock);
-
-  SpiSetBaudRate (Slave);
-
-  Reg = MmioRead32 (SPI0_CS_REG);
-
-  /* Cs must be in the range 0-2 */
-  /* Here we assume CS is active low */
-  Reg &= ~(SPI_CS_CSPOL0 << Slave->Cs);
-
-  /* Clear the mode bits */
-  Reg &= ~(SPI_CS_CPOL | SPI_CS_CPHA);
-
-  switch (Slave->Mode) {
-  case SPI_MODE0:
-    break;
-  case SPI_MODE1:
-    Reg |= SPI_CS_CPHA;
-    break;
-  case SPI_MODE2:
-    Reg |= SPI_CS_CPOL;
-    break;
-  case SPI_MODE3:
-    Reg |= SPI_CS_CPOL;
-    Reg |= SPI_CS_CPHA;
-    break;
-  }
-
-  Reg |= SPI_CS_TA;
-
-  MmioWrite32 (SPI0_CS_REG, Reg);
-
-  EfiReleaseLock (&SpiMaster->Lock);
-}
 
 EFI_STATUS
 EFIAPI
@@ -145,7 +102,7 @@ Bcm283xSpiTransfer (
 {
   SPI_MASTER *SpiMaster;
   UINTN   Length;
-  UINT32  Iterator;
+  UINT32  Iterator, Reg;
   UINT8   *DataOutPtr = (UINT8 *)DataOut;
   UINT8   *DataInPtr  = (UINT8 *)DataIn;
   UINT8   DataRead, DataToSend  = 0;
@@ -160,6 +117,10 @@ Bcm283xSpiTransfer (
 
   if (Flag & SPI_TRANSFER_BEGIN) {
     SpiActivateCs (Slave);
+
+    Reg = MmioRead32 (SPI0_CS_REG);
+    Reg |= SPI_CS_TA;
+    MmioWrite32 (SPI0_CS_REG, Reg);
   }
 
   while (Length > 0) {
@@ -168,7 +129,7 @@ Bcm283xSpiTransfer (
     }
 
     Iterator = 0;
-    /* Transmit Data - space available in FIFO? */
+    /* Transmit Data - space available in FIFO? -- should be a wait not an if - FIX*/
     if (MmioRead32 (SPI0_CS_REG) & SPI_CS_TXD) {
 
       MmioWrite32 (SPI0_FIFO_REG, DataToSend);
@@ -196,8 +157,23 @@ Bcm283xSpiTransfer (
     }
   }
 
+  while((MmioRead32 (SPI0_CS_REG) & SPI_CS_DONE) == 0){
+  }
+
+
+
+/*
+  DEBUG ((DEBUG_ERROR, "%a: out %d in %d n", __FUNCTION__,
+        (DataOutPtr - (UINT8 *)DataOut),
+        (DataInPtr - (UINT8 *)DataIn) ));
+*/
+   //gBS->Stall(50); 
+
   if (Flag & SPI_TRANSFER_END) {
-    SpiDeactivateCs (Slave);
+//    SpiDeactivateCs (Slave);
+    Reg = MmioRead32 (SPI0_CS_REG);
+    Reg &= ~SPI_CS_TA;
+    MmioWrite32 (SPI0_CS_REG, Reg);
   }
 
   if (!EfiAtRuntime ()) {
@@ -244,6 +220,52 @@ Bcm283xSpiInit (
   return EFI_SUCCESS;
 }
 
+STATIC
+VOID
+SpiSetupTransfer (
+  IN BCM283X_SPI_MASTER_PROTOCOL *This,
+  IN SPI_DEVICE *Slave
+  )
+{
+  SPI_MASTER *SpiMaster;
+  UINT32 Reg;
+  SpiMaster = SPI_MASTER_FROM_SPI_MASTER_PROTOCOL (This);
+  
+  EfiAcquireLock (&SpiMaster->Lock);
+
+  SpiSetBaudRate (Slave);
+
+  Reg = MmioRead32 (SPI0_CS_REG);
+
+  /* Cs must be in the range 0-2 */
+  /* Here we assume CS is active low */
+  Reg &= ~(SPI_CS_CSPOL0 << Slave->Cs);
+
+  /* Clear the mode bits */
+  Reg &= ~(SPI_CS_CPOL | SPI_CS_CPHA);
+
+  switch (Slave->Mode) {
+  case SPI_MODE0:
+    break;
+  case SPI_MODE1:
+    Reg |= SPI_CS_CPHA;
+    break;
+  case SPI_MODE2:
+    Reg |= SPI_CS_CPOL;
+    break;
+  case SPI_MODE3:
+    Reg |= SPI_CS_CPOL;
+    Reg |= SPI_CS_CPHA;
+    break;
+  }
+
+//  Reg |= SPI_CS_TA;
+
+  MmioWrite32 (SPI0_CS_REG, Reg);
+
+  EfiReleaseLock (&SpiMaster->Lock);
+}
+
 SPI_DEVICE *
 EFIAPI
 Bcm283xSpiSetupSlave (
@@ -256,7 +278,7 @@ Bcm283xSpiSetupSlave (
   )
 {
   UINT32 Reg;
-
+  
   if (!Slave) {
     Slave = AllocateZeroPool (sizeof(SPI_DEVICE));
     if (Slave == NULL) {
@@ -294,7 +316,13 @@ Bcm283xSpiSetupSlave (
     Reg |=  (GPFSEL_ALT0 << 3); //alt0    
     MmioWrite32(GPFSEL_GPFSEL1, Reg);
 
+
+    Reg = MmioRead32(SPI0_CS_REG);
+//    Reg &= ~(SPI_CS_INTR | SPI_CS_INTD | SPI_CS_DMAEN | SPI_CS_TA);
+    Reg |= SPI_CS_CLEAR_TX | SPI_CS_CLEAR_RX | SPI_CS_TA;
     MmioWrite32(SPI0_CS_REG, SPI_CS_CLEAR_TX | SPI_CS_CLEAR_RX);
+
+    MmioWrite32(SPI0_DLEN_REG, 0);
   }
 
   SpiSetupTransfer (This, Slave);

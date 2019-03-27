@@ -51,9 +51,6 @@
   DxeServicesTableLib
   IoLib
   MemoryAllocationLib
-  NorFlashInfoLib
-  TimerLib
-  UefiBootServicesTableLib
   UefiDriverEntryPoint
   UefiLib
   UefiRuntimeLib
@@ -62,7 +59,5 @@
   gBcm283xSpiMasterProtocolGuid
 
 [Depex]
-  #
-  # SpiDxe must be loaded prior to SpiFlash driver
-  #
-  BEFORE gBcm283xSpiFlashDxeGuid
+
+  TRUE
